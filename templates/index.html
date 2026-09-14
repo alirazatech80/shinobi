@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Calculator</title>
+<style>
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background: #1a1a1a;
+    font-family: Segoe UI, Arial, sans-serif;
+  }
+  .calculator {
+    width: 280px;
+    background: #202020;
+    border-radius: 8px;
+    padding: 16px;
+  }
+  #display {
+    width: 100%;
+    box-sizing: border-box;
+    height: 70px;
+    background: #202020;
+    color: white;
+    border: none;
+    text-align: right;
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+  .buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  button {
+    padding: 20px 0;
+    font-size: 18px;
+    border: none;
+    border-radius: 4px;
+    background: #3d3d3d;
+    color: white;
+    cursor: pointer;
+  }
+  button:hover { background: #505050; }
+  button.operator { background: #3d3d3d; }
+  button.equals { background: #ff9500; }
+  button.equals:hover { background: #ffab33; }
+  button.span-2 { grid-column: span 2; }
+</style>
+</head>
+<body>
+  <div class="calculator">
+    <input id="display" value="0" readonly>
+    <div class="buttons">
+      <button onclick="clearAll()">C</button>
+      <button onclick="toggleSign()">±</button>
+      <button onclick="append('%')" class="operator">%</button>
+      <button onclick="append('/')" class="operator">÷</button>
+
+      <button onclick="append('7')">7</button>
+      <button onclick="append('8')">8</button>
+      <button onclick="append('9')">9</button>
+      <button onclick="append('*')" class="operator">×</button>
+
+      <button onclick="append('4')">4</button>
+      <button onclick="append('5')">5</button>
+      <button onclick="append('6')">6</button>
+      <button onclick="append('-')" class="operator">-</button>
+
+      <button onclick="append('1')">1</button>
+      <button onclick="append('2')">2</button>
+      <button onclick="append('3')">3</button>
+      <button onclick="append('+')" class="operator">+</button>
+
+      <button onclick="append('0')" class="span-2">0</button>
+      <button onclick="append('.')">.</button>
+      <button onclick="calculate()" class="equals">=</button>
+    </div>
+  </div>
+
+<script>
+let expression = "";
+
+function updateDisplay() {
+  document.getElementById("display").value = expression || "0";
+}
+
+function append(value) {
+  expression += value;
+  updateDisplay();
+}
+
+function clearAll() {
+  expression = "";
+  updateDisplay();
+}
+
+function toggleSign() {
+  if (expression) {
+    expression = expression.startsWith("-") ? expression.slice(1) : "-" + expression;
+    updateDisplay();
+  }
+}
+
+async function calculate() {
+  try {
+    const response = await fetch("/calculate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ expression: expression.replace(/%/g, "/100") })
+    });
+    const data = await response.json();
+    if (response.ok) {
+      expression = String(data.result);
+    } else {
+      expression = "";
+      document.getElementById("display").value = "Error";
+      return;
+    }
+  } catch (e) {
+    expression = "";
+    document.getElementById("display").value = "Error";
+    return;
+  }
+  updateDisplay();
+}
+</script>
+</body>
+</html>
