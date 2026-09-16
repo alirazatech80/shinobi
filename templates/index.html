@@ -4,27 +4,63 @@
 <meta charset="UTF-8">
 <title>Calculator</title>
 <style>
+  :root {
+    --bg-body: #1a1a1a;
+    --bg-calc: #202020;
+    --bg-display: #202020;
+    --text: white;
+    --btn-bg: #3d3d3d;
+    --btn-hover: #505050;
+    --eq-bg: #ff9500;
+    --eq-hover: #ffab33;
+    --toggle-bg: #3d3d3d;
+  }
+  body.light-mode {
+    --bg-body: #f0f0f0;
+    --bg-calc: #ffffff;
+    --bg-display: #ffffff;
+    --text: #1a1a1a;
+    --btn-bg: #e6e6e6;
+    --btn-hover: #d4d4d4;
+    --eq-bg: #ff9500;
+    --eq-hover: #ffab33;
+    --toggle-bg: #e6e6e6;
+  }
   body {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
-    background: #1a1a1a;
+    background: var(--bg-body);
     font-family: Segoe UI, Arial, sans-serif;
   }
   .calculator {
     width: 280px;
-    background: #202020;
+    background: var(--bg-calc);
     border-radius: 8px;
     padding: 16px;
+    position: relative;
+  }
+  #theme-toggle {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--toggle-bg);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 32px;
   }
   #display {
     width: 100%;
     box-sizing: border-box;
     height: 70px;
-    background: #202020;
-    color: white;
+    background: var(--bg-display);
+    color: var(--text);
     border: none;
     text-align: right;
     font-size: 32px;
@@ -40,19 +76,20 @@
     font-size: 18px;
     border: none;
     border-radius: 4px;
-    background: #3d3d3d;
-    color: white;
+    background: var(--btn-bg);
+    color: var(--text);
     cursor: pointer;
   }
-  button:hover { background: #505050; }
-  button.operator { background: #3d3d3d; }
-  button.equals { background: #ff9500; }
-  button.equals:hover { background: #ffab33; }
+  button:hover { background: var(--btn-hover); }
+  button.operator { background: var(--btn-bg); }
+  button.equals { background: var(--eq-bg); color: white; }
+  button.equals:hover { background: var(--eq-hover); }
   button.span-2 { grid-column: span 2; }
 </style>
 </head>
 <body>
   <div class="calculator">
+    <button id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">🌙</button>
     <input id="display" value="0" readonly>
     <div class="buttons">
       <button onclick="clearAll()">C</button>
@@ -83,6 +120,19 @@
 
 <script>
 let expression = "";
+
+function applyTheme(isLight) {
+  document.body.classList.toggle("light-mode", isLight);
+  document.getElementById("theme-toggle").textContent = isLight ? "☀️" : "🌙";
+}
+
+function toggleTheme() {
+  const isLight = !document.body.classList.contains("light-mode");
+  applyTheme(isLight);
+  localStorage.setItem("theme", isLight ? "light" : "dark");
+}
+
+applyTheme(localStorage.getItem("theme") === "light");
 
 function updateDisplay() {
   document.getElementById("display").value = expression || "0";
