@@ -45,5 +45,15 @@ def calculate():
         return jsonify(error="Error"), 400
 
 
+@app.route("/miles-to-km", methods=["POST"])
+def miles_to_km():
+    miles = request.json.get("miles", "")
+    try:
+        result = float(miles) * 1.60934
+        return jsonify(result=result)
+    except (ValueError, TypeError):
+        return jsonify(error="Error"), 400
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

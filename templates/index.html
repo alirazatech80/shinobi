@@ -85,6 +85,7 @@
   button.equals { background: var(--eq-bg); color: white; }
   button.equals:hover { background: var(--eq-hover); }
   button.span-2 { grid-column: span 2; }
+  button.span-4 { grid-column: span 4; }
 </style>
 </head>
 <body>
@@ -115,6 +116,8 @@
       <button onclick="append('0')" class="span-2">0</button>
       <button onclick="append('.')">.</button>
       <button onclick="calculate()" class="equals">=</button>
+
+      <button onclick="convertMilesToKm()" class="span-4 operator">mi &rarr; km</button>
     </div>
   </div>
 
@@ -161,6 +164,31 @@ async function calculate() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ expression: expression.replace(/%/g, "/100") })
+    });
+    const data = await response.json();
+    if (response.ok) {
+      expression = String(data.result);
+    } else {
+      expression = "";
+      document.getElementById("display").value = "Error";
+      return;
+    }
+  } catch (e) {
+    expression = "";
+    document.getElementById("display").value = "Error";
+    return;
+  }
+  updateDisplay();
+}
+
+async function convertMilesToKm() {
+  const miles = parseFloat(expression);
+  if (isNaN(miles)) return;
+  try {
+    const response = await fetch("/miles-to-km", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ miles })
     });
     const data = await response.json();
     if (response.ok) {
